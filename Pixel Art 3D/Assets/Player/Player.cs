@@ -31,7 +31,7 @@ public class Player : MonoBehaviour {
 		if (right) xAxis = 1; else if (left) xAxis = -1; else xAxis = 0;
 		if (forward) zAxis = 1; else if (back) zAxis = -1; else zAxis = 0;
 
-		anim.SetBool("MovR", right); anim.SetBool("MovL", left); anim.SetBool("MovF", forward); anim.SetBool("MovB", back);
+        anim.SetFloat("Horizontal", xAxis); anim.SetFloat("Vertical", zAxis);
 	}
 
 	private void FixedUpdate()
