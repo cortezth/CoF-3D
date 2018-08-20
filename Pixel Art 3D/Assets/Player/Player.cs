@@ -36,76 +36,11 @@ public class Player : MonoBehaviour {
 
 	private void FixedUpdate()
 	{
-		right = 
-		(  !Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.right, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.right, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z - rayD), Vector3.right, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z + rayD), Vector3.right, .5f, 1 << 0)
-		&& !Physics.Raycast(transform.position, Vector3.right, .5f, 1 << 0) && Input.GetButton("Right") && !left && canMovH && !boxR);
+		Move();
 
-		left = 
-		(  !Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.left, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.left, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z - rayD), Vector3.left, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z + rayD), Vector3.left, .5f, 1 << 0)
-		&& !Physics.Raycast(transform.position, Vector3.left, .5f, 1 << 0) && Input.GetButton("Left") && !right && canMovH && !boxL);
+		Jump();
 
-		forward = 
-		(  !Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.forward, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.forward, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x + rayD, transform.position.y, transform.position.z), Vector3.forward, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x - rayD, transform.position.y, transform.position.z), Vector3.forward, .5f, 1 << 0)
-		&& !Physics.Raycast(transform.position, Vector3.forward, .5f, 1 << 0) && Input.GetButton("Forward") && !back && canMovV);
-
-		back = 
-		(  !Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.back, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.back, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x + rayD, transform.position.y, transform.position.z), Vector3.back, .5f, 1 << 0)
-		&& !Physics.Raycast(new Vector3(transform.position.x - rayD, transform.position.y, transform.position.z), Vector3.back, .5f, 1 << 0)
-		&& !Physics.Raycast(transform.position, Vector3.back, .5f, 1 << 0) && Input.GetButton("Back") && !forward && canMovV);
-
-		rb.MovePosition(transform.position + new Vector3(xAxis, 0, zAxis) * speed * Time.deltaTime);
-
-		isGrounded =
-		(( Physics.Raycast(new Vector3(transform.position.x + rayD, transform.position.y, transform.position.z), Vector3.down, .8f)
-		|| Physics.Raycast(new Vector3(transform.position.x - rayD, transform.position.y, transform.position.z), Vector3.down, .8f)
-		|| Physics.Raycast(transform.position, Vector3.down, .8f)) && rb.velocity.y <= 0);
-
-		if (!isGrounded)
-			rb.velocity += Vector3.down * gravity * Time.deltaTime;
-
-		if (rb.velocity.y < -maxFallSpeed)
-			rb.velocity = Vector3.down * maxFallSpeed;
-
-		if (Input.GetButton("Jump") && isGrounded && !boxingL && !boxingR)
-			rb.velocity = Vector3.up * jumpSpeed;
-
-		if (Input.GetButtonUp("Jump") && rb.velocity.y > 0) 
-			rb.velocity = Vector3.up * rb.velocity.y * .5f;
-
-		boxR =
-		(  Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.right, .5f, 1 << 10)
-		|| Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.right, .5f, 1 << 10)
-		|| Physics.Raycast(transform.position, Vector3.right, .5f, 1 << 10));
-
-		boxL =
-		(  Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.left, .5f, 1 << 10)
-		|| Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.left, .5f, 1 << 10)
-		|| Physics.Raycast(transform.position, Vector3.left, .5f, 1 << 10));
-
-		if (Input.GetButton("Box"))
-		{
-			if (boxR)
-				boxingR = true;
-
-			if (boxL)
-				boxingL = true;
-		}
-
-		if (Input.GetButtonUp("Box") && (boxingL || boxingR))
-		{
-			boxingR = false; boxingL = false;
-		}
+		Box();
 	}
 
 	private void OnTriggerEnter(Collider other)
@@ -135,5 +70,84 @@ public class Player : MonoBehaviour {
 		{
 			transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
 		}
+	}
+
+	void Box ()
+	{
+		boxR =
+		(Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.right, .5f, 1 << 10)
+		|| Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.right, .5f, 1 << 10)
+		|| Physics.Raycast(transform.position, Vector3.right, .5f, 1 << 10));
+
+		boxL =
+		(Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.left, .5f, 1 << 10)
+		|| Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.left, .5f, 1 << 10)
+		|| Physics.Raycast(transform.position, Vector3.left, .5f, 1 << 10));
+
+		if (Input.GetButton("Box"))
+		{
+			if (boxR)
+				boxingR = true;
+
+			if (boxL)
+				boxingL = true;
+		}
+
+		if (Input.GetButtonUp("Box") && (boxingL || boxingR))
+		{
+			boxingR = false; boxingL = false;
+		}
+	}
+
+	void Jump ()
+	{
+		isGrounded =
+		((Physics.Raycast(new Vector3(transform.position.x + rayD, transform.position.y, transform.position.z), Vector3.down, .8f)
+		|| Physics.Raycast(new Vector3(transform.position.x - rayD, transform.position.y, transform.position.z), Vector3.down, .8f)
+		|| Physics.Raycast(transform.position, Vector3.down, .8f)) && rb.velocity.y <= 0);
+
+		//Gravity
+		rb.velocity += Vector3.down * gravity * Time.deltaTime;
+
+		//Max Fall Speed
+		if (rb.velocity.y < -maxFallSpeed)
+			rb.velocity = Vector3.down * maxFallSpeed;
+
+		//Jump
+		if (Input.GetButton("Jump") && isGrounded && !boxingL && !boxingR)
+			rb.velocity = Vector3.up * jumpSpeed;
+	}
+
+	void Move ()
+	{
+		right =
+		(!Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.right, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.right, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z - rayD), Vector3.right, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z + rayD), Vector3.right, .5f, 1 << 0)
+		&& !Physics.Raycast(transform.position, Vector3.right, .5f, 1 << 0) && Input.GetButton("Right") && !left && canMovH && !boxR);
+
+		left =
+		(!Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.left, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.left, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z - rayD), Vector3.left, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z + rayD), Vector3.left, .5f, 1 << 0)
+		&& !Physics.Raycast(transform.position, Vector3.left, .5f, 1 << 0) && Input.GetButton("Left") && !right && canMovH && !boxL);
+
+		forward =
+		(!Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.forward, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.forward, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x + rayD, transform.position.y, transform.position.z), Vector3.forward, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x - rayD, transform.position.y, transform.position.z), Vector3.forward, .5f, 1 << 0)
+		&& !Physics.Raycast(transform.position, Vector3.forward, .5f, 1 << 0) && Input.GetButton("Forward") && !back && canMovV);
+
+		back =
+		(!Physics.Raycast(new Vector3(transform.position.x, transform.position.y + rayD, transform.position.z), Vector3.back, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x, transform.position.y - rayD, transform.position.z), Vector3.back, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x + rayD, transform.position.y, transform.position.z), Vector3.back, .5f, 1 << 0)
+		&& !Physics.Raycast(new Vector3(transform.position.x - rayD, transform.position.y, transform.position.z), Vector3.back, .5f, 1 << 0)
+		&& !Physics.Raycast(transform.position, Vector3.back, .5f, 1 << 0) && Input.GetButton("Back") && !forward && canMovV);
+
+		rb.MovePosition(transform.position + new Vector3(xAxis, 0, zAxis) * speed * Time.deltaTime);
 	}
 }
